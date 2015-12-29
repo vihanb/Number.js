@@ -3,47 +3,44 @@
 //
 // Number.js
 // Better Numbers for JavaScript
-// Lots of sacrafices have been taken for very fast preformance
+// with ridiculious optimizations
 ////
 
 /**
  * Sacrafice List
  * List of sacrafices made for performance:
- 
+
  * No strings
  * Using pop
  * No `for`
  * No `+`, too slow
  * No `%`, too slow
+ * No casting
  */
 
 "use strict";
 
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Num = (function () {
-  function Num(str) {
-    _classCallCheck(this, Num);
+var Int = (function () {
+  function Int(str) {
+    _classCallCheck(this, Int);
 
     this.Num = str.split("");
   }
 
-  /** 
-    // Example Use
-    
-    var one = Num('1');
-    one.add('2');
-    one.add(one);
-    
-    */
-
-  _createClass(Num, [{
+  _createClass(Int, [{
     key: "Iadd",
     value: function Iadd(n) {
       var N = n.split("");
       var B = this.Num; // Lookups are slow as heck
+      var R = []; // Contains results
       var C = 0; // Carry out register
       var L = 0;
       if (n instanceof Num === true) {
@@ -51,26 +48,71 @@ var Num = (function () {
       } else {
         N = n.split("");
       }
-
       while (N.length) {
-        // Carry outs make this a mess, so we'll just use the cpu's adders rather than bitwise
-        //L = (N.pop() | 0) + (B.pop() | 0) + (C | 0);
-        console.log(( (N.pop() | 0) + (B.pop() | 0) ),  );
-        /*if (L > 9) {
-          B.push(L - 10);
+        // Carry outs make this a mess, so we'll just use hope the cpus adders dont blow up
+        L = (N.pop() | 0) + (B.pop() | 0) + C;
+        if (L > 9) {
+          R.unshift(L - 10);
           C = 1;
         } else {
-          B.push(L);
+          R.unshift(L | 0);
           C = 0;
-        }*/
+        }
       }
-      if (C === 1) B.push(1); // Finish carry outs
+      if (C === 1) R.unshift(1); // Finish carry outs
+      this.Num = R;
+      return this;
+    }
+  }, {
+    key: "ISub",
+    value: function ISub(n) {}
+  }, {
+    key: "Ival",
+    get: function get() {
+      return this.Num.join("");
+    },
+    set: function set(n) {
+      this.Num = n.split("");
+    }
+  }]);
 
-      this.Num = B;
+  return Int;
+})();
 
-      return B;
+var Num = (function (_Int) {
+  _inherits(Num, _Int);
+
+  function Num(str, dec) {
+    _classCallCheck(this, Num);
+
+    _get(Object.getPrototypeOf(Num.prototype), "constructor", this).call(this, str);
+    this.dec = dec.split("");
+    this.len = dec.length;
+    this.irr = 0; // Irrational numbers
+  }
+
+  /** 
+    // Example Use
+  
+    var one = Num('1');
+    one.add('2');
+    one.add(one);
+  
+    */
+
+  _createClass(Num, [{
+    key: "add",
+    value: function add(i, d) {
+      var NI = i.split("").concat(d.split(""));
+      var NL = d.length;
+      var RS = _get(Object.getPrototypeOf(Num.prototype), "Iadd", this).call(this, this._nval.join(""), NI.join(""));
+    }
+  }, {
+    key: "_nval",
+    get: function get() {
+      return this.Num.concat(this.dec);
     }
   }]);
 
   return Num;
-})();
+})(Int);
