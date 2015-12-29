@@ -16,3 +16,8 @@ L=(C|0)+(A|0)+(B|0);
 if(L>9)C=1;
 else C=0;
 ```
+
+irrational
+```
+this.R=1
+```
