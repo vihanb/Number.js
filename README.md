@@ -1,4 +1,18 @@
 # Number.js
-A fast, better, number class for JavaScript.
+An insanely fast arbitrary prescision library for JavaScript.
 
-This will be the default number class included into TeaScript so TeaScript can perform arbitrary-prescision math and other stuff
+## Notes to self:
+
+notes to myself:
+
+loop
+```js
+while(arr.length)arr.pop();
+```
+
+mod
+```js
+L=(C|0)+(A|0)+(B|0);
+if(L>9)C=1;
+else C=0;
+```
