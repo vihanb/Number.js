@@ -16,8 +16,21 @@
  * No `+`, too slow
  * No `%`, too slow
  * No casting
+ * No reverse
+ * No slice
+ * No +=
+ * No join
  */
 
+/*=== INTEGER PRIMITIVE ===*/
+
+/**
+ * I - Integer
+ * N - Number, assumes operand is JS number
+ * add
+ * times
+ * minus
+ */
 "use strict";
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -35,39 +48,46 @@ var Int = (function () {
     this.Num = str.split("");
   }
 
+  /*=== NUMBER ===*/
+
   _createClass(Int, [{
-    key: "Iadd",
-    value: function Iadd(n) {
-      var N = n.split("");
-      var B = this.Num; // Lookups are slow as heck
-      var R = []; // Contains results
-      var C = 0; // Carry out register
-      var L = 0;
-      if (n instanceof Num === true) {
-        N = n.NumInt;
+    key: "add",
+    value: function add(n) {
+      var N = undefined;
+      if (n instanceof Array) {
+        N = n;
       } else {
         N = n.split("");
       }
-      while (N.length) {
-        // Carry outs make this a mess, so we'll just use hope the cpus adders dont blow up
+      var B = this.Num; // Lookups are slow as heck
+
+      var R = []; // Contains results
+      var C = 0; // Carry out register
+      var L = 0;
+
+      var Q = Math.max(B.length, N.length);
+
+      while (Q--) {
+        // undefined|0 === 0
         L = (N.pop() | 0) + (B.pop() | 0) + C;
         if (L > 9) {
-          R.unshift(L - 10);
-          C = 1;
+          // Carry out
+          R.unshift(L - 10); // First value
+          C = 1; // Set carry out
         } else {
-          R.unshift(L | 0);
-          C = 0;
-        }
+            R.unshift(L | 0);
+            C = 0;
+          }
       }
       if (C === 1) R.unshift(1); // Finish carry outs
       this.Num = R;
       return this;
     }
   }, {
-    key: "ISub",
-    value: function ISub(n) {}
+    key: "times",
+    value: function times(n) {}
   }, {
-    key: "Ival",
+    key: "val",
     get: function get() {
       return this.Num.join("");
     },
@@ -86,6 +106,7 @@ var Num = (function (_Int) {
     _classCallCheck(this, Num);
 
     _get(Object.getPrototypeOf(Num.prototype), "constructor", this).call(this, str);
+    // this.Num = str
     this.dec = dec.split("");
     this.len = dec.length;
     this.irr = 0; // Irrational numbers
@@ -103,9 +124,26 @@ var Num = (function (_Int) {
   _createClass(Num, [{
     key: "add",
     value: function add(i, d) {
-      var NI = i.split("").concat(d.split(""));
-      var NL = d.length;
-      var RS = _get(Object.getPrototypeOf(Num.prototype), "Iadd", this).call(this, this._nval.join(""), NI.join(""));
+      // this.Num = [this.Num, ...this.dec].join("")
+      this.Num = this.Num.concat(this.dec);
+      var RS = _get(Object.getPrototypeOf(Num.prototype), "Iadd", this).call(this, i + d).Num;
+
+      var RL = RS.length;
+      var BL = RL - 0;
+      var RD = 0;
+
+      while (RL--) {
+        RD = BL - RL;
+        if (RD < BL) {
+          this.dec[RD] = this.Num.pop();
+        }
+      }
+      return this;
+    }
+  }, {
+    key: "val",
+    get: function get() {
+      return;
     }
   }, {
     key: "_nval",
