@@ -1,5 +1,5 @@
 # Number.js
-An insanely fast arbitrary prescision library for JavaScript.
+An insanely fast arbitrary precision library for JavaScript.
 
 ## Notes to self:
 
