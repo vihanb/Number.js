@@ -25,19 +25,13 @@
 /*=== INTEGER PRIMITIVE ===*/
 
 /**
- * I - Integer
- * N - Number, assumes operand is JS number
  * add
  * times
  * minus
  */
 "use strict";
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -48,11 +42,13 @@ var Int = (function () {
     this.Num = str.split("");
   }
 
-  /*=== NUMBER ===*/
+  /**
+   * == Integer Class ==
+   */
 
   _createClass(Int, [{
-    key: "add",
-    value: function add(n) {
+    key: "plus",
+    value: function plus(n) {
       var N = undefined;
       if (n instanceof Array) {
         N = n;
@@ -84,8 +80,38 @@ var Int = (function () {
       return this;
     }
   }, {
-    key: "times",
-    value: function times(n) {}
+    key: "minus",
+    value: function minus(n) {
+      var N = undefined;
+      if (n instanceof Array) {
+        N = n;
+      } else {
+        N = n.split("");
+      }
+      var B = this.Num; // Lookups are slow as heck
+
+      var R = []; // Contains results
+      var C = 0; // Carry out register
+      var L = 0;
+
+      var Q = Math.max(B.length, N.length);
+
+      while (Q--) {
+        // undefined|0 === 0
+        L = (N.pop() | 0) - (B.pop() | 0) - C;
+        if (L < 0) {
+          // Carry out
+          R.unshift(L + 10); // First value
+          C = 1; // Set carry out
+        } else {
+            R.unshift(L | 0);
+            C = 0;
+          }
+      }
+      if (C === 1) R.unshift('-'); // Finish carry outs
+      this.Num = R;
+      return this;
+    }
   }, {
     key: "val",
     get: function get() {
@@ -99,20 +125,26 @@ var Int = (function () {
   return Int;
 })();
 
-var Num = (function (_Int) {
-  _inherits(Num, _Int);
+var IntegerValidate = function IntegerValidate(Integer) {
+  var N = undefined;
+  if (Integer instanceof Array) N = Integer.join("");else if (Integer instanceof String) N = Integer;else if (Integer instanceof Number) N = Integer + "";else if (Integer instanceof Integer) N = Integer.N.slice(); // FIX
+  else if (Integer instanceof Int) N = undefined.Num.join("");else throw new TypeError("can't convert " + Integer.constructor.name + " to integer primitive");
 
-  function Num(str, dec) {
-    _classCallCheck(this, Num);
+  N = +N;
 
-    _get(Object.getPrototypeOf(Num.prototype), "constructor", this).call(this, str);
-    // this.Num = str
-    this.dec = dec.split("");
-    this.len = dec.length;
-    this.irr = 0; // Irrational numbers
+  if (N !== N) N = new Num(N);else throw new TypeError(undefined.Value + " to integer");
+
+  return N;
+};
+
+var Integer = (function () {
+  function Integer(obj) {
+    _classCallCheck(this, Integer);
+
+    this.Value = IntegerValidate(N);
   }
 
-  /** 
+  /**
     // Example Use
   
     var one = Num('1');
@@ -121,36 +153,17 @@ var Num = (function (_Int) {
   
     */
 
-  _createClass(Num, [{
+  _createClass(Integer, [{
     key: "add",
-    value: function add(i, d) {
-      // this.Num = [this.Num, ...this.dec].join("")
-      this.Num = this.Num.concat(this.dec);
-      var RS = _get(Object.getPrototypeOf(Num.prototype), "Iadd", this).call(this, i + d).Num;
-
-      var RL = RS.length;
-      var BL = RL - 0;
-      var RD = 0;
-
-      while (RL--) {
-        RD = BL - RL;
-        if (RD < BL) {
-          this.dec[RD] = this.Num.pop();
-        }
-      }
-      return this;
+    value: function add(obj) {
+      this.Value.add(IntegerValidate);
     }
   }, {
-    key: "val",
+    key: "Length",
     get: function get() {
-      return;
-    }
-  }, {
-    key: "_nval",
-    get: function get() {
-      return this.Num.concat(this.dec);
+      return this.Value.length >>> 0;
     }
   }]);
 
-  return Num;
-})(Int);
+  return Integer;
+})();
