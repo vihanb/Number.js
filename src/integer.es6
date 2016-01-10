@@ -21,6 +21,9 @@
  * No slice
  * No +=
  * No join
+ * No implicit casting
+ * No explicit comparisions
+ * No array-built ins
  */
 
 /*=== INTEGER PRIMITIVE ===*/
@@ -30,7 +33,6 @@
  * minus
 **/
 
-const INT_BASE = 9; // -1 from desired base
 class Int {
   constructor(str) {
     this.Num = str.split("");
@@ -62,9 +64,9 @@ class Int {
     this.Num = R;
     return this;
   }
-  gt(n) {
+  sign(n) {
     let A = this.Num;
-    let B = n;
+    let B = n.split("");
 
     let C = A.length;
     let D = B.length;
@@ -76,25 +78,28 @@ class Int {
       E = A.shift();
       F = B.shift();
       if (E > F) return 1;
-      else if (F < E) return 0;
+      else if (E < F) return -1;
     }
 
     return 0;
   }
   minus(n) {
-    let A = n.split("");
+    let A = n;
     let B = this.Num; // Lookups are slow as heck
 
-    let C = A.shift();
-    let D = B.shift();
-
     let W;
+    let X = this.sign(n);
 
-    let L = 0;
-
-    while (W--) {
-      L = A.pop()
+    if (X === 1) {
+      W = B;
+    } else if (X === -1) {
+      W = A;
+    } else {
+      // Numbers are equal
+      return this.Num = [0];
     }
+
+    let N = W.length;
   }
 }
 
@@ -108,42 +113,26 @@ For above 2^32 length, pass an array literal:
  * == Integer Class ==
  */
 
-const IntegerValidate = Integer => {
+const IntegerMake  = (Value)
+
+const IntegerParse = IntNum => {
+  let Data = {
+
+  }
+};
+
+const IntegerValidate = integer => {
   let N;
-  let V;
-  if (Integer instanceof Array)
-    N = Integer;
-  else if (Integer instanceof String)
-    N = Integer.split("");
-  else if (Integer instanceof Number)
-    N = (Integer+"").split("");
-  else if (Integer instanceof Integer)
-    // FIXME: Better integer copying
-    N = Integer.N.slice(); // FIX
-  else if (Integer instanceof Int)
-    N = this.Num.split("");
-  else
-    throw new TypeError(`can't convert ${Integer.constructor.name} to integer primitive`);
-
-  N = +N;
-
-  if (N !== N)
-    N = new Num(N);
-  else
-    throw new TypeError(this.Value + " to integer");
-
-  return N;
-}
+  if (integer instanceof String)      N = IntegerParse(integer)   .split("");
+  else if (integer instanceof Number) N = IntegerParse(integer+"").split("");
+  else if (integer instanceof Array)  N = integer;
+  else if (integer instanceof Int)    N = integer.Num;
+  else throw new Error(`could not validate ` + integer + ` to an integer`)
+};
 
 class Integer {
-  constructor(obj) {
-    this.Value = IntegerValidate(N);
-  }
-  get Length() { return this.Value.length >>> 0 }
-
-  add(obj) {
-    this.Value.add(IntegerValidate);
-
+  constructor(integer) {
+    this.Literal = IntegerValidate(integer);
   }
 }
 
