@@ -1,35 +1,19 @@
 # Number.js
 An insanely fast arbitrary precision library for JavaScript.
 
-## Notes to self:
+## Just *how* fast?
 
-notes to myself:
+NumberJS takes only **`0.00006` seconds** per operation! That's over 16,000 operations per second!
 
-loop
+## How do I use it?
+
+1. Create an `Int` object
 ```js
-while(arr.length)arr.pop();
+var MyInt = new Int('23');
 ```
-
-or
+2. Do anything!
 ```js
-let N=arr.length;while(N--)arr.pop();
-```
-
-or
-```js
-let N=arr.length;while(N--)arr[N];
-```
-
----
-
-mod
-```js
-L=(C|0)+(A|0)+(B|0);
-if(L>9)C=1;
-else C=0;
-```
-
-irrational
-```js
-this.R=1
+MyInt.plus('32'); // 55
+MyInt.times('4'); // 220
+MyInt.pow('2');   // 48400
 ```
