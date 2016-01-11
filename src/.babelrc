@@ -1,8 +1,5 @@
 {
-  "only": [
-    "*.es6"
-  ],
-  "presets": [
-    "es2015"
-  ]
+  "only": ["*.es6"],
+  "presets": ["es2015"],
+  "plugins": ["transform-object-assign"]
 }

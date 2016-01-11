@@ -10,6 +10,18 @@ loop
 while(arr.length)arr.pop();
 ```
 
+or
+```js
+let N=arr.length;while(N--)arr.pop();
+```
+
+or
+```js
+let N=arr.length;while(N--)arr[N];
+```
+
+---
+
 mod
 ```js
 L=(C|0)+(A|0)+(B|0);
@@ -18,6 +30,6 @@ else C=0;
 ```
 
 irrational
-```
+```js
 this.R=1
 ```
