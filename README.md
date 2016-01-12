@@ -17,3 +17,12 @@ MyInt.plus('32'); // 55
 MyInt.times('4'); // 220
 MyInt.pow('2');   // 48400
 ```
+---
+
+Want an easier to use class? Use `Integer`, `Int` only supports strings and is very string on input format. This results in faster speeds but lacks convinience, the `Integer` wrapper at a *very* small speed cost. **It also supports decimals** and is easier to work with:
+
+```js
+var MyInt = new Integer(2341234.1234123412);
+
+MyInt.add(943583984525423.18234);
+```
