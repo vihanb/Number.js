@@ -39,6 +39,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 /*=== CONSTANTS ===*/
 var INT_DEBUG = true;
+var INT_MAX = Number.MAX_SAFE_INTEGER;
 
 // Helper functions
 var IsClass = function IsClass(Value, Class) {
@@ -103,6 +104,8 @@ var Int = function () {
   }, {
     key: "minus",
     value: function minus(n) {
+      var i = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+
       var A = this.Num;
       var B = IsArray(n); // Lookups are slow as heck
 
@@ -121,7 +124,14 @@ var Int = function () {
         }
       }
       // TODO: Move to Integer wrapper
-      if (C === 1) throw new RangeError("subtraction out of range. Use Integer wrapper");
+      if (C === 1) {
+        if (i) {
+          R.unshift(-1 * (R.shift() - 10));
+          this.Neg = true;
+        } else {
+          throw new RangeError("subtraction out of range. Use Integer wrapper");
+        }
+      }
       this.Num = R;
       return this;
     }
@@ -220,13 +230,14 @@ var IntegerParse = function IntegerParse(IntNum) {
   // TODO: Use less HORRIBLE, `replace` method
   IntNum.replace(/\D/g, ""), {
     Negated: IntNum[0] === "-",
-    Exp: (IntNum.indexOf(".") > -1 ? IntNum.indexOf(".") : IntNum.length) - (IntNum[0] === "-")
+    // TODO: Use less HORRIBLE `split` method
+    Exp: (IntNum.split(".")[1] || "").length
   }];
 };
 
 var IntegerValidate = function IntegerValidate(integer) {
   var N = undefined;
-  if (IsClass(integer, "String")) N = integer;else if (IsClass(integer, "Number")) N = integer + "";else if (IsClass(integer, "Array")) N = integer.join("");else if (integer instanceof Int) N = integer.Num.join("");else throw new TypeError("could not validate " + integer + " to an integer");
+  if (IsClass(integer, "String")) N = integer;else if (IsClass(integer, "Number")) N = integer + "";else if (IsClass(integer, "Array")) N = integer.join("");else if (IsClass(integer, "Boolean")) N = +integer;else if (integer instanceof Int) N = integer.Num.join("");else throw new TypeError("could not validate " + integer + " to an integer");
 
   N = IntegerMake.apply(undefined, _toConsumableArray(IntegerParse(N)));
   return N;
@@ -240,6 +251,11 @@ var Integer = function () {
   }
 
   _createClass(Integer, [{
+    key: "toString",
+    value: function toString() {
+      return (this.Negated ? "-" : "") + (this.Exp ? this.StrVal.slice(0, -this.Exp) + "." + this.StrVal.slice(-this.Exp) : this.StrVal);
+    }
+  }, {
     key: "add",
     value: function add(N) {
       if (N instanceof Integer) N = N;else N = IntegerValidate(N);
@@ -251,8 +267,48 @@ var Integer = function () {
       var A = _Integer$fix2[0].Value;
       var B = _Integer$fix2[1].Value;
 
-      var R = new Int(A).plus(B);
-      return R;
+      this.Value = new Int(A).plus(B).Num;
+      return this;
+    }
+  }, {
+    key: "minus",
+    value: function minus(N) {
+      if (N instanceof Integer) N = N;else N = IntegerValidate(N);
+
+      var _Integer$fix3 = Integer.fix(this, N);
+
+      var _Integer$fix4 = _slicedToArray(_Integer$fix3, 2);
+
+      var A = _Integer$fix4[0].Value;
+      var B = _Integer$fix4[1].Value;
+
+      var _minus = new Int(A).minus(B, true);
+
+      this.Value = _minus.Num;
+      var _minus$Neg = _minus.Neg;
+      this.Negated = _minus$Neg === undefined ? false : _minus$Neg;
+
+      return this;
+    }
+  }, {
+    key: "times",
+    value: function times(N) {
+      if (N instanceof Integer) N = N;else N = IntegerValidate(N);
+
+      var _Integer$fix5 = Integer.fix(this, N);
+
+      var _Integer$fix6 = _slicedToArray(_Integer$fix5, 2);
+
+      var A = _Integer$fix6[0].Value;
+      var B = _Integer$fix6[1].Value;
+
+      this.Value = new Int(A).times(B).Num;
+      return this;
+    }
+  }, {
+    key: "StrVal",
+    get: function get() {
+      return this.Value.join("");
     }
   }], [{
     key: "fix",
@@ -262,9 +318,6 @@ var Integer = function () {
       var B = b.Value;
       var D = b.Exp;
 
-      C = A.length - C;
-      D = B.length - D;
-
       var N = undefined;
 
       if (C === D) return [a, b];
@@ -272,12 +325,14 @@ var Integer = function () {
         N = C - D;
         while (N--) {
           B.push(0);
-        }return [a, IntegerMake(B, b)];
+        }b.Exp = C;
+        return [a, IntegerMake(B, b)];
       } else if (D > C) {
         N = D - C;
         while (N--) {
           A.push(0);
-        }return [IntegerMake(A, a), b];
+        }a.Exp = B;
+        return [IntegerMake(A, a), b];
       } else {
         throw new TypeError("could not sign " + C + " and / or " + D);
       }
@@ -290,8 +345,7 @@ var Integer = function () {
 /**
 // Example Use
 
-var one = new Num('1');
-one.add('2');
-one.add(one);
+var one = new Integer(32.54);
+one.plus('239.32143')
 
 */

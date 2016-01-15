@@ -28,6 +28,7 @@
 
 /*=== CONSTANTS ===*/
 const INT_DEBUG = true;
+const INT_MAX   = Number.MAX_SAFE_INTEGER;
 
 // Helper functions
 const IsClass = (Value, Class) => Object.prototype.toString.call(Value) === `[object ${Class}]`
@@ -83,7 +84,7 @@ class Int {
     this.Num = R;
     return this;
   }
-  minus(n) {
+  minus(n,i=false) {
     let A = this.Num;
     let B = IsArray(n); // Lookups are slow as heck
 
@@ -102,7 +103,14 @@ class Int {
       }
     }
     // TODO: Move to Integer wrapper
-    if (C === 1) throw new RangeError(`subtraction out of range. Use Integer wrapper`);
+    if (C === 1) {
+      if (i) {
+        R.unshift(-1 * (R.shift() - 10));
+        this.Neg = true;
+      } else {
+        throw new RangeError(`subtraction out of range. Use Integer wrapper`);
+      }
+    }
     this.Num = R;
     return this;
   }
@@ -157,7 +165,7 @@ For above 2^32 length, pass an array literal:
 * == Integer Class ==
 */
 
-const IntegerMake  = (Value, { Negated = false, Exp = 0 } = {}) => ({
+const IntegerMake  = (Value, { Negated: Negated = false, Exp: Exp = 0 } = {}) => ({
   Value: IsArray(Value),
   Negated: Negated,
   Exp: Exp
@@ -168,7 +176,8 @@ const IntegerParse = IntNum => [
   IntNum.replace(/\D/g, ""),
   {
     Negated: IntNum[0] === "-",
-    Exp: (IntNum.indexOf(".") > -1 ? IntNum.indexOf(".") : IntNum.length) - (IntNum[0] === "-")
+    // TODO: Use less HORRIBLE `split` method
+    Exp: (IntNum.split(".")[1] || "").length
   }
 ];
 
@@ -177,6 +186,7 @@ const IntegerValidate = integer => {
   if      (IsClass(integer, "String")) N = integer;
   else if (IsClass(integer, "Number")) N = integer+"";
   else if (IsClass(integer, "Array"))  N = integer.join("");
+  else if (IsClass(integer, "Boolean"))N = +integer;
   else if (integer instanceof Int)     N = integer.Num.join("");
   else throw new TypeError(`could not validate ` + integer + ` to an integer`)
 
@@ -188,12 +198,18 @@ class Integer {
   constructor(integer) {
     Object.assign(this, IntegerValidate(integer));
   }
+
+  get StrVal() { return this.Value.join("") }
+
+  toString() {
+    return (this.Negated ? "-" : "") + (this.Exp ?
+      this.StrVal.slice(0,-this.Exp) + "." + this.StrVal.slice(-this.Exp) :
+      this.StrVal
+    )
+  }
   static fix(a,b) {
     let {Value: A, Exp: C} = a;
     let {Value: B, Exp: D} = b;
-
-    C = (A.length - C);
-    D = (B.length - D);
 
     let N;
 
@@ -201,10 +217,12 @@ class Integer {
     if (C > D) {
       N = C - D;
       while (N--) B.push(0);
+      b.Exp = C;
       return [a, IntegerMake(B, b)];
     } else if (D > C) {
       N = D - C;
       while (N--) A.push(0);
+      a.Exp = B;
       return [IntegerMake(A, a), b]
     } else {
       throw new TypeError(`could not sign ${C} and / or ${D}`)
@@ -214,16 +232,29 @@ class Integer {
     if (N instanceof Integer) N = N;
     else N = IntegerValidate(N);
     let [{Value: A}, {Value: B}] = Integer.fix(this, N);
-    let R = new Int(A).plus(B);
-    return R;
+    this.Value = new Int(A).plus(B).Num;
+    return this;
+  }
+  minus(N) {
+    if (N instanceof Integer) N = N;
+    else N = IntegerValidate(N);
+    let [{Value: A}, {Value: B}] = Integer.fix(this, N);
+    ({ Num: this.Value, Neg: this.Negated = false } = new Int(A).minus(B, true));
+    return this;
+  }
+  times(N) {
+    if (N instanceof Integer) N = N;
+    else N = IntegerValidate(N);
+    let [{Value: A}, {Value: B}] = Integer.fix(this, N);
+    this.Value = new Int(A).times(B).Num;
+    return this;
   }
 }
 
 /**
 // Example Use
 
-var one = new Num('1');
-one.add('2');
-one.add(one);
+var one = new Integer(32.54);
+one.plus('239.32143')
 
 */
