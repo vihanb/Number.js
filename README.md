@@ -26,3 +26,30 @@ var MyInt = new Integer(2341234.1234123412);
 
 MyInt.add(943583984525423.18234);
 ```
+
+## Docs Plz?
+
+They are these functions
+
+ - `add`
+ - `minus`
+ - `times`
+ - `sign`
+ 
+`times` is just repeated addition which could be improved. Currently negative numbers are not supported. Decimals are supported with the `Integer` class.
+
+---
+
+To make your self an bigint. First create an instance of the class
+
+```js
+var IntA = new Int("123"); // Faster, no negative or decimal support, requires argument to be a string
+var IntB = new Integer(123.45); // Slightly Slower, Argument can be anything (number, string). Supports decimals with experimental negative support
+```
+
+Now what do I do? Simple, call a function `<IntClassVariable>.<function>(<argument>)`. So If I wanted to add `323` to each variable I created earlier
+
+```js
+IntA.add("323"); // I can only add a string remember
+IntB.add(323); // Here I can 
+```
